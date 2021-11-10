@@ -1,0 +1,203 @@
+- name: Update and configure baseline system
+  hosts: pis
+  remote_user: alarm
+  become: yes
+  vars:
+    hostname: macak
+
+  tasks:
+
+    - name: Start entropy daemon
+      systemd:
+        name: haveged.service
+        state: started
+        enabled: yes
+
+    - name: Set hostname with systemd
+      hostname:
+        name: "{{ hostname }}"
+        use: systemd
+
+    - name: Set hosts
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          127.0.0.1 localhost.localdomain localhost
+          127.0.0.1 {{ hostname }}.localdomain {{ hostname }}
+          ::1 localhost.localdomain localhost
+          ::1 {{ hostname }}.localdomain {{ hostname }}
+
+    - name: Generate locale
+      locale_gen:
+        name: en_HK.UTF-8
+
+    - name: Sync time
+      systemd:
+        name: systemd-timesyncd.service
+        state: started
+        enabled: yes
+
+    - name: Configure Pacman color
+      replace:
+        dest: /etc/pacman.conf
+        regexp: "^#Color"
+        replace: Color
+
+    - name: Configure Pacman parallel downloads
+      replace:
+        dest: /etc/pacman.conf
+        regexp: "^#ParallelDownloads"
+        replace: ParallelDownloads
+
+    - name: Configure Pacman candy
+      lineinfile:
+        path: /etc/pacman.conf
+        insertafter: ParallelDownloads
+        line: ILoveCandy
+
+    - name: Update and upgrade packages
+      pacman:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install basic packages
+      pacman:
+        name:
+          - sudo
+          - git
+          - vim
+          - stow
+          - ripgrep
+          - tree
+          - python-pylint
+          - mypy
+          - terminus-font
+          - htop
+          - wget
+          - ncdu
+          - bash-completion
+          - pkgfile
+          - make
+          - tmux
+
+    - name: Set console font
+      lineinfile:
+        path: /etc/vconsole.conf
+        create: yes
+        line: "FONT=ter-124n"
+        mode: 0644
+
+- name: Configure wireless networking
+  hosts: all
+  remote_user: alarm
+  become: yes
+  vars:
+    ssid: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          61386235613366353631663266623537313833393463343438653835643966386434353835346164
+          3336393431393332653061626466626363336265303165300a306631303536353935646439333765
+          39653430633930343532396539636536613138363135326336663239396434363865646366336638
+          3633373732666434320a386561373361653335633964343361653866376661626661646232383566
+          6532
+    psk: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          37383030313239343663663761333266313862656561306239393333646163613135343133306439
+          6564633464323261343233313732386133663932636562340a353463353535666233303737373066
+          38643065356362356434363034613163373432643333623064356161393736326431373230313736
+          6633363834616262610a306533353530623536376133343933383539656535353666346437663066
+          65343339353034316232653135626136343730366133323833626366383532656336303334353865
+          39666130656661353634313033306561396331626366303866653036633539363237643466653565
+          31376434316637376162663865633864316237396264663033363563373966343333396665366237
+          35303361343639393132
+
+  tasks:
+
+    - name: Add network to wpa_supplicant
+      template:
+        src: templates/wpa_supplicant-wlan0.conf.j2
+        dest: /etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+        mode: 0644
+
+    - name: Configure networkd to manage wlan0
+      copy:
+        src: files/wlan0.network
+        dest: /etc/systemd/network/wlan0.network
+        mode: 0644
+
+    - name: Enable wpa_supplicant
+      systemd:
+        name: wpa_supplicant@wlan0.service
+        state: started
+        enabled: yes
+
+    - name: Enable networkd
+      systemd:
+        name: systemd-networkd.service
+        state: started
+        enabled: yes
+
+- name: Create new user
+  hosts: all
+  remote_user: alarm
+  become: yes
+  vars:
+    user: fionn
+
+  tasks:
+
+    - name: Create user {{ user }}
+      user:
+        name: "{{ user }}"
+        groups: wheel
+        append: yes
+
+    - name: Set authorized keys
+      authorized_key:
+        user: "{{ user }}"
+        key: https://github.com/{{ user }}.keys
+        exclusive: yes
+
+- name: Configure home
+  hosts: all
+  remote_user: fionn
+
+  tasks:
+
+    - name: Get dotfiles
+      git:
+        repo: https://github.com/fionn/.dotfiles.git
+        dest: ~/.dotfiles
+        accept_hostkey: yes
+        recursive: yes
+        version: master
+
+    - name: Remove conflicting dotfiles
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - .bashrc
+        - .bash_profile
+
+    - name: Stow dotfiles
+      command:
+        cmd: stow {{ item }}
+        chdir: ~/.dotfiles
+        creates: ~/.pam_environment
+      loop:
+        - vim
+        - bash
+        - git
+        - inputrc
+        - mypy
+        - pam
+
+- name: Reboot
+  hosts: all
+  remote_user: fionn
+  become: yes
+
+  tasks:
+
+    - name: Reboot
+      reboot:
