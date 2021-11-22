@@ -1,0 +1,80 @@
+- name: Start entropy daemon
+  systemd:
+    name: haveged.service
+    state: started
+    enabled: yes
+
+- name: Set hostname with systemd
+  hostname:
+    name: "{{ hostname }}"
+    use: systemd
+
+- name: Set hosts
+  blockinfile:
+    path: /etc/hosts
+    block: |
+      127.0.0.1 localhost.localdomain localhost
+      127.0.0.1 {{ hostname }}.localdomain {{ hostname }}
+      ::1 localhost.localdomain localhost
+      ::1 {{ hostname }}.localdomain {{ hostname }}
+
+- name: Generate locale
+  locale_gen:
+    name: en_HK.UTF-8
+
+- name: Sync time
+  systemd:
+    name: systemd-timesyncd.service
+    state: started
+    enabled: yes
+
+- name: Configure Pacman color
+  replace:
+    dest: /etc/pacman.conf
+    regexp: "^#Color"
+    replace: Color
+
+- name: Configure Pacman parallel downloads
+  replace:
+    dest: /etc/pacman.conf
+    regexp: "^#ParallelDownloads"
+    replace: ParallelDownloads
+
+- name: Configure Pacman candy
+  lineinfile:
+    path: /etc/pacman.conf
+    insertafter: ParallelDownloads
+    line: ILoveCandy
+
+- name: Update and upgrade packages
+  pacman:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install basic packages
+  pacman:
+    name:
+      - sudo
+      - git
+      - man
+      - vim
+      - stow
+      - ripgrep
+      - tree
+      - python-pylint
+      - mypy
+      - terminus-font
+      - htop
+      - wget
+      - ncdu
+      - bash-completion
+      - pkgfile
+      - make
+      - tmux
+
+- name: Set console font
+  lineinfile:
+    path: /etc/vconsole.conf
+    create: yes
+    line: "FONT=ter-124n"
+    mode: 0644

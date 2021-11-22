@@ -1,0 +1,28 @@
+    - name: Get dotfiles
+      git:
+        repo: https://github.com/{{ github_username }}/.dotfiles.git
+        dest: ~/.dotfiles
+        accept_hostkey: yes
+        recursive: yes
+        version: master
+
+    - name: Remove conflicting dotfiles
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - .bashrc
+        - .bash_profile
+
+    - name: Stow dotfiles
+      command:
+        cmd: stow {{ item }}
+        chdir: ~/.dotfiles
+        creates: ~/.pam_environment
+      loop:
+        - vim
+        - bash
+        - git
+        - inputrc
+        - mypy
+        - pam

@@ -1,0 +1,50 @@
+- name: Test username
+  ping:
+  ignore_unreachable: true
+  ignore_errors: true
+  changed_when: false
+  register: ssh_test
+  become: no
+
+- name: Fall back to {{ default_user }} user
+  when: ssh_test.unreachable is defined
+  connection: local
+  become: no
+  set_fact:
+    ansible_user: "{{ default_user }}"
+    ansible_ssh_pass: "{{ default_user }}"
+    ansible_become_password: "{{ default_user }}"
+
+- name: Create user {{ user }}
+  when: ssh_test.unreachable is defined
+  user:
+    name: "{{ user }}"
+    groups: wheel
+    append: yes
+    password: "{{ password_string | string | password_hash('sha512', password_salt) }}"
+
+- name: Revert to user {{ user }}
+  set_fact:
+    ansible_user: "{{ user }}"
+    ansible_ssh_password: "{{ password_string }}"
+    ansible_become_password: "{{ password_string }}"
+
+- name: Set authorized keys
+  become: no
+  authorized_key:
+    user: "{{ user }}"
+    key: https://github.com/{{ user }}.keys
+    exclusive: yes
+
+- name: Ensure {{ user }} has correct password
+  user:
+    name: "{{ user }}"
+    groups: wheel
+    append: yes
+    password: "{{ password_string | string | password_hash('sha512', password_salt) }}"
+
+- name: Destroy {{ default_user }} user
+  user:
+    name: "{{ default_user }}"
+    state: absent
+    remove: yes

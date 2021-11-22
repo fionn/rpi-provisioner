@@ -1,0 +1,23 @@
+- name: Add network to wpa_supplicant
+  template:
+    src: templates/wpa_supplicant-wlan0.conf.j2
+    dest: /etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+    mode: 0644
+
+- name: Configure networkd to manage wlan0
+  copy:
+    src: files/wlan0.network
+    dest: /etc/systemd/network/wlan0.network
+    mode: 0644
+
+- name: Enable wpa_supplicant
+  systemd:
+    name: wpa_supplicant@wlan0.service
+    state: started
+    enabled: yes
+
+- name: Enable networkd
+  systemd:
+    name: systemd-networkd.service
+    state: started
+    enabled: yes
