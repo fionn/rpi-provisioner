@@ -1,6 +1,73 @@
+- name: User management
+  hosts: all
+  gather_facts: false
+  become: yes
+  vars:
+    user: fionn
+    password_salt: "n3mBfO4IivEt5zMI"
+    password_string: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          35393839373235643461343434326265636430343662636431623664633464646237653032613766
+          6561343734643932303435643262393232616532643161310a383461396264623839633462353862
+          30656132336134393934346631383863653961346530623331383239613464613236653436333365
+          3263303137646366320a356661383535326438303238323536376534376664663564383632396165
+          6133
+
+  tasks:
+
+    - name: Test username
+      ping:
+      ignore_unreachable: true
+      ignore_errors: true
+      changed_when: false
+      register: ssh_test
+      become: no
+
+    - name: Fall back to alarm user
+      when: ssh_test.unreachable is defined
+      connection: local
+      become: no
+      set_fact:
+        ansible_user: alarm
+        ansible_ssh_pass: alarm
+        ansible_become_password: alarm
+
+    - name: Create user {{ user }}
+      when: ssh_test.unreachable is defined
+      user:
+        name: "{{ user }}"
+        groups: wheel
+        append: yes
+        password: "{{ password_string | string | password_hash('sha512', password_salt) }}"
+
+    - name: Revert to user {{ user }}
+      set_fact:
+        ansible_user: "{{ user }}"
+        ansible_ssh_password: "{{ password_string }}"
+        ansible_become_password: "{{ password_string }}"
+
+    - name: Set authorized keys
+      become: no
+      authorized_key:
+        user: "{{ user }}"
+        key: https://github.com/{{ user }}.keys
+        exclusive: yes
+
+    - name: Ensure {{ user }} has correct password
+      user:
+        name: "{{ user }}"
+        groups: wheel
+        append: yes
+        password: "{{ password_string | string | password_hash('sha512', password_salt) }}"
+
+    - name: Destroy alarm user
+      user:
+        name: alarm
+        state: absent
+        remove: yes
+
 - name: Update and configure baseline system
-  hosts: pis
-  remote_user: alarm
+  hosts: all
   become: yes
   vars:
     hostname: macak
@@ -65,6 +132,7 @@
         name:
           - sudo
           - git
+          - man
           - vim
           - stow
           - ripgrep
@@ -89,7 +157,6 @@
 
 - name: Configure wireless networking
   hosts: all
-  remote_user: alarm
   become: yes
   vars:
     ssid: !vault |
@@ -136,30 +203,8 @@
         state: started
         enabled: yes
 
-- name: Create new user
-  hosts: all
-  remote_user: alarm
-  become: yes
-  vars:
-    user: fionn
-
-  tasks:
-
-    - name: Create user {{ user }}
-      user:
-        name: "{{ user }}"
-        groups: wheel
-        append: yes
-
-    - name: Set authorized keys
-      authorized_key:
-        user: "{{ user }}"
-        key: https://github.com/{{ user }}.keys
-        exclusive: yes
-
 - name: Configure home
   hosts: all
-  remote_user: fionn
 
   tasks:
 
@@ -194,7 +239,6 @@
 
 - name: Reboot
   hosts: all
-  remote_user: fionn
   become: yes
 
   tasks:
