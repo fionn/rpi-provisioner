@@ -54,12 +54,3 @@
     - role: dotfiles
       vars:
         github_username: "{{ ansible_user }}"
-
-- name: Reboot
-  hosts: all
-  become: yes
-
-  tasks:
-
-    - name: Reboot
-      reboot:
