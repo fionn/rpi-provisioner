@@ -63,6 +63,12 @@
       vars:
         github_username: "{{ ansible_user }}"
 
+- name: Install and run Tor
+  hosts: all
+  become: yes
+  roles:
+    - role: tor
+
 - name: Install, configure and run bitcoind
   hosts: all
   become: yes

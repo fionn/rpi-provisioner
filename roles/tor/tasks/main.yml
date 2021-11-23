@@ -1,0 +1,10 @@
+- name: Install Tor
+  pacman:
+    name:
+      - tor
+
+- name: Enable and start tor
+  systemd:
+    name: tor
+    enabled: yes
+    state: started

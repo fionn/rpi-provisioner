@@ -1,0 +1,5 @@
+- name: restart tor
+  service:
+    name: tor
+    state: restarted
+    # We restart due to https://bugs.archlinux.org/task/70295.
