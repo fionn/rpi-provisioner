@@ -2,16 +2,15 @@
 
 ## About
 
-This is an opinionated playbook for my personal Pi.
+An opinionated playbook for my personal Pi.
 
 ## Prerequisites
 
 ### Local
 
-Install `ansible-stow` with `ansible-galaxy install -r requirements.yml`.
-We also require `collections.general` and `sshpass` locally.
+We require `sshpass` and Ansible's `collections.general`.
 
-Add the Pi to the `~/.ssh/config` hosts.
+Add the target to the `~/.ssh/config` hosts.
 
 ### Remote
 
@@ -22,11 +21,11 @@ SSH to the target and run
 pacman-key --init
 pacman-key --populate archlinuxarm
 pacman -Sy python sudo
-visudo  # to add wheel to the sudoers file
+visudo  # and add wheel to the sudoers file
 ```
 as root (required to bootstrap Ansible).
 
-Test inventory and connectivity with `ansible -i hosts.ini all -m ping`.
+Test inventory and connectivity with `ansible -i hosts.ini all -u $user -m ping`.
 
 ## Provision
 
