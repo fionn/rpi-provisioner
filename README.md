@@ -31,5 +31,5 @@ Test inventory and connectivity with `ansible -i hosts.ini all -m ping`.
 ## Provision
 
 ```
-ansible-playbook base.yml --vault-password-file vault_password.txt -i hosts.ini
+ansible-playbook playbook.yml --vault-password-file vault_password.txt -i hosts.ini
 ```
