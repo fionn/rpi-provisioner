@@ -1,0 +1,36 @@
+- name: Disable SSH password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PasswordAuthentication "
+    line: PasswordAuthentication no
+  notify: reload sshd
+
+- name: Use Ed25519 host key
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#HostKey /etc/ssh/ssh_host_ed25519_key"
+    line: "HostKey /etc/ssh/ssh_host_ed25519_key"
+  notify: reload sshd
+
+- name: Restrict number of authentication attempts
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#MaxAuthTries "
+    line: MaxAuthTries 1
+  notify: reload sshd
+
+- name: Allow SSH users
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: "AllowUsers {{ user }}"
+  notify: reload sshd
+
+- name: Restrict cryptographic algorithms
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    block: |
+      KexAlgorithms sntrup761x25519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org
+      Ciphers chacha20-poly1305@openssh.com
+      MACs hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
+      PubkeyAcceptedAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,sk-ssh-ed25519-cert-v01@openssh.com
+  notify: reload sshd

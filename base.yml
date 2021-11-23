@@ -24,6 +24,14 @@
       vars:
         hostname: macak
 
+- name: Harden sshd
+  hosts: all
+  become: yes
+  roles:
+    - role: sshd
+      vars:
+        user: fionn
+
 - name: Configure wireless networking
   hosts: all
   become: yes
