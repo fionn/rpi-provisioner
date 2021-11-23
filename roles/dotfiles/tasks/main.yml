@@ -5,20 +5,28 @@
         accept_hostkey: yes
         recursive: yes
         version: master
+        force: yes
 
-    - name: Remove conflicting dotfiles
-      file:
-        path: "{{ item }}"
-        state: absent
+    - name: Check for conflicts
+      stat:
+        path: "{ item }"
       loop:
         - .bashrc
         - .bash_profile
+      register: conflicts
+
+    - name: Remove conflicting dotfiles
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      when: item.stat.islnk is defined and not item.stat.islnk
+      loop: "{{ conflicts.results }}"
 
     - name: Stow dotfiles
       command:
         cmd: stow {{ item }}
         chdir: ~/.dotfiles
-        creates: ~/.pam_environment
+        creates: ~/.bash_profile
       loop:
         - vim
         - bash
