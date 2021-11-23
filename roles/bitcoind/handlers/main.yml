@@ -1,0 +1,6 @@
+- name: restart bitcoind
+  service:
+    name: bitcoind
+    state: restarted
+    # We have to restart because bitcoind doesn't support reloading.
+    # See https://github.com/bitcoin/bitcoin/issues/309.

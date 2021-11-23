@@ -62,3 +62,9 @@
     - role: dotfiles
       vars:
         github_username: "{{ ansible_user }}"
+
+- name: Install, configure and run bitcoind
+  hosts: all
+  become: yes
+  roles:
+    - role: bitcoind

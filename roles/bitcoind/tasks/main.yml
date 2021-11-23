@@ -1,0 +1,20 @@
+- name: Install Bitcoin Core and friends
+  pacman:
+    name:
+      - bitcoin-daemon
+      - bitcoin-cli
+      - bitcoin-tx
+
+- name: Configure bitcoind
+  copy:
+    src: files/bitcoin.conf
+    dest: /etc/bitcoin/bitcoin.conf
+    mode: 0644
+  notify:
+    - restart bitcoind
+
+- name: Enable and start bitcoind
+  systemd:
+    name: bitcoind
+    enabled: yes
+    state: started
