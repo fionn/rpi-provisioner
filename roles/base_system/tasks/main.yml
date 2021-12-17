@@ -64,12 +64,14 @@
       - python-pylint
       - mypy
       - terminus-font
+      - lsof
       - htop
       - wget
       - ncdu
       - bash-completion
       - pkgfile
       - make
+      - jq
       - tmux
 
 - name: Set console font
