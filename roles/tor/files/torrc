@@ -1,0 +1,20 @@
+# vim: set ft=conf
+
+User tor
+
+SOCKSPolicy accept 127.0.0.0/16
+SOCKSPolicy accept6 ::1/128
+SOCKSPolicy reject *
+
+Log notice syslog
+
+DataDirectory /var/lib/tor
+
+HiddenServiceNonAnonymousMode 0
+
+HiddenServiceDir /var/lib/tor/sshd/
+HiddenServicePort 22 127.0.0.1:22
+
+HiddenServiceDir /var/lib/tor/bitcoin-service/
+HiddenServicePort 8333 127.0.0.1:8334
+HiddenServiceSingleHopMode 0

@@ -3,6 +3,16 @@
     name:
       - tor
 
+- name: Configure Tor
+  copy:
+    src: files/torrc
+    dest: /etc/tor/torrc
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart tor
+
 - name: Enable and start tor
   systemd:
     name: tor

@@ -5,9 +5,14 @@
       - bitcoin-cli
       - bitcoin-tx
 
+- name: Get hidden service URL
+  slurp:
+    src: /var/lib/tor/bitcoin-service/hostname
+  register: bitcoin_onion_url
+
 - name: Configure bitcoind
-  copy:
-    src: files/bitcoin.conf
+  template:
+    src: templates/bitcoin.conf.j2
     dest: /etc/bitcoin/bitcoin.conf
     mode: 0644
   notify:

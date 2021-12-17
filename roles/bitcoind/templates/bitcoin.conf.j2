@@ -9,6 +9,14 @@ maxuploadtarget=1024
 prune=550
 server=1
 
+# Networking over Tor.
+# See https://github.com/bitcoin/bitcoin/blob/master/doc/tor.md#3-manually-create-a-bitcoin-core-onion-service.
+
+onion=127.0.0.1:9050
+externalip={{ bitcoin_onion_url.content | b64decode }}
+listen=1
+discover=1
+
 [main]
 
 [test]
