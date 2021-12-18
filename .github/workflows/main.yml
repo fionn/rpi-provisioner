@@ -1,0 +1,19 @@
+name: CI
+
+on: push
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install system dependencies
+      run: sudo apt-get -y install ansible-lint
+
+    - name: Lint
+      run: ansible-lint -v playbook.yml
