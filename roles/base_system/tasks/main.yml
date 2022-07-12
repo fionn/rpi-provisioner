@@ -1,10 +1,4 @@
 ---
-- name: Start entropy daemon
-  systemd:
-    name: haveged.service
-    state: started
-    enabled: yes
-
 - name: Set hostname with systemd
   hostname:
     name: "{{ hostname }}"
