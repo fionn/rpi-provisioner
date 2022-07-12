@@ -2,8 +2,11 @@
 - name: Disable SSH password authentication
   lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: "^#?PasswordAuthentication "
-    line: PasswordAuthentication no
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - {regexp: "^#?PasswordAuthentication ", line: PasswordAuthentication no}
+    - {regexp: "^#?KbdInteractiveAuthentication ", line: KbdInteractiveAuthentication no}
   notify: reload sshd
 
 - name: Use Ed25519 host key
@@ -13,11 +16,14 @@
     line: "HostKey /etc/ssh/ssh_host_ed25519_key"
   notify: reload sshd
 
-- name: Restrict number of authentication attempts
+- name: Restrict number of sessions and authentication attempts
   lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: "^#MaxAuthTries "
-    line: MaxAuthTries 1
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - {regexp: "^#?MaxAuthTries ", line: MaxAuthTries 1}
+    - {regexp: "^#?MaxSessions ", line: MaxSessions 3}
   notify: reload sshd
 
 - name: Allow SSH users
