@@ -75,3 +75,11 @@
   become: yes
   roles:
     - role: bitcoind
+
+- name: Check package integrity
+  hosts: all
+  become: yes
+  tasks:
+    - name: Check all files are present on the system
+      command: pacman -Qk
+      changed_when: false
