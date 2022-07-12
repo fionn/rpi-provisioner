@@ -1,3 +1,4 @@
+---
 - name: Test username
   ping:
   ignore_unreachable: true

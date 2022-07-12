@@ -1,36 +1,37 @@
-    - name: Get dotfiles
-      git:
-        repo: https://github.com/{{ github_username }}/.dotfiles.git
-        dest: ~/.dotfiles
-        accept_hostkey: yes
-        recursive: yes
-        version: master
-        force: yes
+---
+- name: Get dotfiles
+  git:
+    repo: https://github.com/{{ github_username }}/.dotfiles.git
+    dest: ~/.dotfiles
+    accept_hostkey: yes
+    recursive: yes
+    version: master
+    force: yes
 
-    - name: Check for conflicts
-      stat:
-        path: "{ item }"
-      loop:
-        - .bashrc
-        - .bash_profile
-      register: conflicts
+- name: Check for conflicts
+  stat:
+    path: "{ item }"
+  loop:
+    - .bashrc
+    - .bash_profile
+  register: conflicts
 
-    - name: Remove conflicting dotfiles
-      file:
-        path: "{{ item.path }}"
-        state: absent
-      when: item.stat.islnk is defined and not item.stat.islnk
-      loop: "{{ conflicts.results }}"
+- name: Remove conflicting dotfiles
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  when: item.stat.islnk is defined and not item.stat.islnk
+  loop: "{{ conflicts.results }}"
 
-    - name: Stow dotfiles
-      command:
-        cmd: stow {{ item }}
-        chdir: ~/.dotfiles
-        creates: ~/.bash_profile
-      loop:
-        - vim
-        - bash
-        - git
-        - inputrc
-        - mypy
-        - pam
+- name: Stow dotfiles
+  command:
+    cmd: stow {{ item }}
+    chdir: ~/.dotfiles
+    creates: ~/.bash_profile
+  loop:
+    - vim
+    - bash
+    - git
+    - inputrc
+    - mypy
+    - pam

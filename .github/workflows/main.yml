@@ -1,3 +1,4 @@
+---
 name: CI
 
 on: push
@@ -10,10 +11,13 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Install system dependencies
-      run: sudo apt-get -y install ansible-lint
+      run: sudo apt-get -y install ansible-lint yamllint
 
-    - name: Lint
+    - name: Lint Ansible
       run: ansible-lint -v playbook.yml
+
+    - name: Lint YAML
+      run: yamllint $(find . -name "*.yml")

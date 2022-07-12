@@ -1,3 +1,4 @@
+---
 - name: Install Bitcoin Core and friends
   pacman:
     name:

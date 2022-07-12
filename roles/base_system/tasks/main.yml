@@ -1,3 +1,4 @@
+---
 - name: Start entropy daemon
   systemd:
     name: haveged.service

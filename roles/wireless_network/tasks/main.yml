@@ -1,3 +1,4 @@
+---
 - name: Add network to wpa_supplicant
   template:
     src: templates/wpa_supplicant-wlan0.conf.j2
