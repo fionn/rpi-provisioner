@@ -34,7 +34,7 @@
     dest: ~/.config/ddns/he.conf
     mode: 0600
   notify:
-    - reload ddns
+    - Reload ddns
 
 - name: Enable and start dynamic DNS timer
   systemd:

@@ -17,7 +17,7 @@
     dest: /etc/bitcoin/bitcoin.conf
     mode: 0644
   notify:
-    - restart bitcoind
+    - Restart bitcoind
 
 - name: Enable and start bitcoind
   systemd:

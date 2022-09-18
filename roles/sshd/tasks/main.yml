@@ -7,14 +7,14 @@
   loop:
     - {regexp: "^#?PasswordAuthentication ", line: PasswordAuthentication no}
     - {regexp: "^#?KbdInteractiveAuthentication ", line: KbdInteractiveAuthentication no}
-  notify: reload sshd
+  notify: Reload sshd
 
 - name: Use Ed25519 host key
   lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "^#HostKey /etc/ssh/ssh_host_ed25519_key"
     line: "HostKey /etc/ssh/ssh_host_ed25519_key"
-  notify: reload sshd
+  notify: Reload sshd
 
 - name: Restrict number of sessions and authentication attempts
   lineinfile:
@@ -24,13 +24,13 @@
   loop:
     - {regexp: "^#?MaxAuthTries ", line: MaxAuthTries 1}
     - {regexp: "^#?MaxSessions ", line: MaxSessions 3}
-  notify: reload sshd
+  notify: Reload sshd
 
 - name: Allow SSH users
   lineinfile:
     path: /etc/ssh/sshd_config
     line: "AllowUsers {{ user }}"
-  notify: reload sshd
+  notify: Reload sshd
 
 - name: Restrict cryptographic algorithms
   blockinfile:
@@ -40,4 +40,4 @@
       Ciphers chacha20-poly1305@openssh.com
       MACs hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
       PubkeyAcceptedAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,sk-ssh-ed25519-cert-v01@openssh.com
-  notify: reload sshd
+  notify: Reload sshd

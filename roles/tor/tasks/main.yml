@@ -12,7 +12,7 @@
     group: root
     mode: 0644
   notify:
-    - restart tor
+    - Restart tor
 
 - name: Enable and start tor
   systemd:

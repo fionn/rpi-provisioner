@@ -1,5 +1,5 @@
 ---
-- name: reload ddns
+- name: Reload ddns
   service:
     name: ddns@he
     scope: user
