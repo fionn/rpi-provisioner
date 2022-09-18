@@ -20,4 +20,4 @@ jobs:
       run: ansible-lint -v playbook.yml
 
     - name: Lint YAML
-      run: yamllint $(find . -name "*.yml")
+      run: make yamllint
