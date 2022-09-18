@@ -8,7 +8,7 @@ An opinionated playbook for my personal Pi.
 
 ### Local
 
-We require `sshpass` and Ansible's `collections.general`.
+We require `sshpass` and Ansible's `collections.general` and `community.general`.
 
 Add the target to the `~/.ssh/config` hosts.
 
