@@ -1,0 +1,44 @@
+---
+- name: Download dynamic DNS service
+  git:
+    repo: https://github.com/{{ github_username }}/ddns-service.git
+    dest: ~/code/ddns-service
+    accept_hostkey: yes
+    version: master
+    force: yes
+
+- name: Ensure systemd user directory exists
+  file:
+    path: ~/.config/systemd/user/
+    state: directory
+    mode: 0700
+
+- name: Ensure dynamic DNS configuration directory exists
+  file:
+    path: ~/.config/ddns
+    state: directory
+    mode: 0700
+
+- name: Install dynamic DNS service
+  file:
+    src: ~/code/ddns-service/service/{{ item }}
+    dest: ~/.config/systemd/user/{{ item }}
+    state: link
+  loop:
+    - ddns@.service
+    - ddns@.timer
+
+- name: Configure dynamic DNS service
+  template:
+    src: templates/he.conf.j2
+    dest: ~/.config/ddns/he.conf
+    mode: 0600
+  notify:
+    - reload ddns
+
+- name: Enable and start dynamic DNS timer
+  systemd:
+    name: ddns@he.timer
+    scope: user
+    enabled: yes
+    state: started

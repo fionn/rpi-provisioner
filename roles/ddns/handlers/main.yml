@@ -1,0 +1,6 @@
+---
+- name: reload ddns
+  service:
+    name: ddns@he
+    scope: user
+    state: reloaded
