@@ -25,7 +25,7 @@ visudo  # and add wheel to the sudoers file
 ```
 as root (required to bootstrap Ansible).
 
-Test inventory and connectivity with `ansible -i hosts.ini all -u $user -m ping`.
+Test inventory and connectivity with `make ping`.
 
 ## Provision
 

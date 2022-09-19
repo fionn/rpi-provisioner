@@ -15,3 +15,7 @@ ansible-lint:
 
 .PHONY: lint
 lint: yamllint ansible-lint
+
+.PHONY: ping
+ping: hosts.ini
+	ansible -i $< all -u $(USER) -m $@
