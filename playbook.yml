@@ -105,3 +105,18 @@
     - name: Check all files are present on the system
       command: pacman -Qk
       changed_when: false
+
+- name: Clean package cache
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install pacman-contrib
+      pacman:
+        name:
+          - pacman-contrib
+    - name: Remove uninstalled packages
+      command: paccache -rvuk0
+      changed_when: false
+    - name: Remove cached packages
+      command: paccache -rv
+      changed_when: false
