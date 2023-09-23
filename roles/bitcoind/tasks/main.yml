@@ -3,7 +3,6 @@
   pacman:
     name:
       - bitcoin-daemon
-      - bitcoin-cli
       - bitcoin-tx
 
 - name: Get hidden service URL
