@@ -23,6 +23,12 @@
   when: item.stat.islnk is defined and not item.stat.islnk
   loop: "{{ conflicts.results }}"
 
+- name: Create configuration directory
+  file:
+    path: ~/.config
+    state: directory
+    mode: "0755"
+
 - name: Stow dotfiles
   command:
     cmd: stow {{ item }}
