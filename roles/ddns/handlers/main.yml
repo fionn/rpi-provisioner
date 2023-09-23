@@ -1,6 +1,6 @@
 ---
 - name: Reload ddns
-  service:
+  systemd:
     name: ddns@he
     scope: user
     state: reloaded
